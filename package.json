@@ -43,3 +43,18 @@
         },
         "errorSonar.codeErrorSoundPath": {
           "type": "string",
+          "default": "",
+          "description": "Absolute or workspace-relative path for code error sound. If empty, extension uses media/fahh.mp3."
+        },
+        "errorSonar.terminalErrorSoundPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute or workspace-relative path for terminal error sound. If empty, extension uses media/fahh.mp3."
+        },
+        "errorSonar.notifyOnStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a startup notification when the extension activates."
+        }
+      }
+    }
