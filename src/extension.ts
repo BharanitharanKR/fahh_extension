@@ -40,3 +40,24 @@ class SoundGate {
     } finally {
       this.isPlaying = false;
     }
+  }
+}
+
+export function activate(context: vscode.ExtensionContext): void {
+  const output = vscode.window.createOutputChannel('Error Sonar');
+  context.subscriptions.push(output);
+
+  let config = loadConfig(context, output);
+  let previousErrorCount = getTotalDiagnosticsErrorCount();
+  const soundGate = new SoundGate(output);
+
+  const diagnosticsDisposable = vscode.languages.onDidChangeDiagnostics(() => {
+    const currentErrorCount = getTotalDiagnosticsErrorCount();
+
+    if (!config.enabled) {
+      previousErrorCount = currentErrorCount;
+      return;
+    }
+
+    if (currentErrorCount > previousErrorCount && config.codeErrorSoundPath) {
+      void soundGate.play(config.codeErrorSoundPath, config.cooldownMs);
