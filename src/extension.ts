@@ -229,3 +229,18 @@ function runProcess(command: string, args: string[]): Promise<void> {
 
     child.once('close', (code) => {
       if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`exit code ${code ?? 'unknown'}`));
+      }
+    });
+  });
+}
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
