@@ -58,3 +58,16 @@ Example:
 {
   "errorSonar.codeErrorSoundPath": "/absolute/path/to/fahh.mp3",
   "errorSonar.terminalErrorSoundPath": "/absolute/path/to/fahh.mp3"
+}
+```
+
+Or place files directly in this extension folder:
+
+- `media/fahh.mp3`
+
+## Publish checklist
+
+- Update `publisher`, `repository.url`, and `version` in `package.json`
+- Add an icon and set `icon` field in `package.json`
+- Package with `vsce package`
+- Publish with `vsce publish`
