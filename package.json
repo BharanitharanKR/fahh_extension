@@ -28,3 +28,18 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
+      "title": "Error Sonar",
+      "properties": {
+        "errorSonar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable Error Sonar."
+        },
+        "errorSonar.cooldownMs": {
+          "type": "number",
+          "default": 1200,
+          "minimum": 0,
+          "description": "Minimum time in milliseconds between sounds."
+        },
+        "errorSonar.codeErrorSoundPath": {
+          "type": "string",
