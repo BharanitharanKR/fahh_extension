@@ -3,11 +3,11 @@
   "displayName": "Error Sonar",
   "description": "Play configurable sounds when code or terminal errors occur.",
   "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "publisher": "Bharanitharan",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-account/error-sonar"
+    "url": "https://github.com/BharanitharanKR/fahh_extension"
   },
   "engines": {
     "vscode": "^1.93.0"
@@ -68,6 +68,7 @@
   "devDependencies": {
     "@types/node": "^22.10.6",
     "@types/vscode": "^1.93.0",
+    "@vscode/vsce": "^3.7.1",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0"

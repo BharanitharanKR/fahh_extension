@@ -71,3 +71,11 @@ Or place files directly in this extension folder:
 - Add an icon and set `icon` field in `package.json`
 - Package with `vsce package`
 - Publish with `vsce publish`
+
+## Publish via GitHub Actions (alternative)
+
+1. In GitHub repo settings, add a repository secret named `VSCE_PAT`.
+2. Go to **Actions** and run **Publish VS Code Extension** manually.
+3. Or push a version tag like `v0.1.1` to auto-run publish.
+
+Workflow file: `.github/workflows/publish.yml`
