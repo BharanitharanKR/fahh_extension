@@ -208,3 +208,24 @@ async function runFirstAvailable(commands: Array<{ command: string; args: string
     try {
       await runProcess(item.command, item.args);
       return;
+    } catch (error) {
+      errors.push(`${item.command}: ${toErrorMessage(error)}`);
+    }
+  }
+
+  throw new Error(`No supported Linux audio player succeeded. Tried ${errors.join(' | ')}`);
+}
+
+function runProcess(command: string, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: 'ignore',
+      windowsHide: true
+    });
+
+    child.once('error', (error) => {
+      reject(error);
+    });
+
+    child.once('close', (code) => {
+      if (code === 0) {
