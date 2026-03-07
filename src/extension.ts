@@ -103,3 +103,24 @@ function loadConfig(context: vscode.ExtensionContext, output: vscode.OutputChann
   const settings = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
 
   const enabled = settings.get<boolean>('enabled', true);
+  const rawCooldown = settings.get<number>('cooldownMs', 1200);
+  const notifyOnStart = settings.get<boolean>('notifyOnStart', true);
+
+  const codePathSetting = settings.get<string>('codeErrorSoundPath', '');
+  const terminalPathSetting = settings.get<string>('terminalErrorSoundPath', '');
+
+  const defaultFahhPath = path.join(context.extensionPath, 'media', 'fahh.mp3');
+  const codeErrorSoundPath = resolveSoundPath(codePathSetting, defaultFahhPath);
+  const terminalErrorSoundPath = resolveSoundPath(terminalPathSetting, defaultFahhPath);
+
+  const cooldownMs = Number.isFinite(rawCooldown) ? Math.max(0, rawCooldown) : 0;
+
+  if (enabled && !codeErrorSoundPath) {
+    output.appendLine('[Error Sonar] No valid file found for code errors. Set errorSonar.codeErrorSoundPath or add media/fahh.mp3.');
+  }
+
+  if (enabled && !terminalErrorSoundPath) {
+    output.appendLine('[Error Sonar] No valid file found for terminal errors. Set errorSonar.terminalErrorSoundPath or add media/fahh.mp3.');
+  }
+
+  return {
