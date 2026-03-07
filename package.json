@@ -13,3 +13,18 @@
     "vscode": "^1.93.0"
   },
   "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "error",
+    "sound",
+    "terminal",
+    "diagnostics",
+    "alerts"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
