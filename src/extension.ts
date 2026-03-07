@@ -124,3 +124,24 @@ function loadConfig(context: vscode.ExtensionContext, output: vscode.OutputChann
   }
 
   return {
+    enabled,
+    cooldownMs,
+    notifyOnStart,
+    codeErrorSoundPath,
+    terminalErrorSoundPath
+  };
+}
+
+function resolveSoundPath(configuredPath: string, bundledFallbackPath: string): string | undefined {
+  const trimmedPath = configuredPath.trim();
+  const candidates: string[] = [];
+
+  if (trimmedPath.length > 0) {
+    if (path.isAbsolute(trimmedPath)) {
+      candidates.push(trimmedPath);
+    } else {
+      const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
+      for (const folder of workspaceFolders) {
+        candidates.push(path.join(folder.uri.fsPath, trimmedPath));
+      }
+      candidates.push(path.resolve(trimmedPath));
