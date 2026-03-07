@@ -61,3 +61,24 @@ export function activate(context: vscode.ExtensionContext): void {
 
     if (currentErrorCount > previousErrorCount && config.codeErrorSoundPath) {
       void soundGate.play(config.codeErrorSoundPath, config.cooldownMs);
+    }
+
+    previousErrorCount = currentErrorCount;
+  });
+
+  const terminalDisposable = vscode.window.onDidEndTerminalShellExecution((event) => {
+    if (!config.enabled || !config.terminalErrorSoundPath) {
+      return;
+    }
+
+    if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
+      void soundGate.play(config.terminalErrorSoundPath, config.cooldownMs);
+    }
+  });
+
+  const configurationDisposable = vscode.workspace.onDidChangeConfiguration((changeEvent) => {
+    if (!changeEvent.affectsConfiguration(CONFIG_NAMESPACE)) {
+      return;
+    }
+
+    config = loadConfig(context, output);
