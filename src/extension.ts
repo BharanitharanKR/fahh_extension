@@ -166,3 +166,24 @@ function getTotalDiagnosticsErrorCount(): number {
     for (const diagnostic of diagnostics) {
       if (diagnostic.severity === vscode.DiagnosticSeverity.Error) {
         total += 1;
+      }
+    }
+  }
+
+  return total;
+}
+
+async function playAudioFile(filePath: string): Promise<void> {
+  if (process.platform === 'darwin') {
+    await runProcess('afplay', [filePath]);
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    const escapedPath = filePath.replace(/'/g, "''");
+    const command = [
+      'Add-Type -AssemblyName presentationCore;',
+      '$p = New-Object System.Windows.Media.MediaPlayer;',
+      `$p.Open('${escapedPath}');`,
+      '$p.Play();',
+      'Start-Sleep -Milliseconds 1800'
