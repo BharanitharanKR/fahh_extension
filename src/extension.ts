@@ -82,3 +82,24 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     config = loadConfig(context, output);
+  });
+
+  context.subscriptions.push(diagnosticsDisposable, terminalDisposable, configurationDisposable);
+
+  if (config.notifyOnStart) {
+    if (config.enabled) {
+      void vscode.window.showInformationMessage('Error Sonar is active.');
+    } else {
+      void vscode.window.showInformationMessage('Error Sonar loaded but currently disabled in settings.');
+    }
+  }
+}
+
+export function deactivate(): void {
+  // Nothing to clean up explicitly; disposables are tracked via subscriptions.
+}
+
+function loadConfig(context: vscode.ExtensionContext, output: vscode.OutputChannel): LoadedConfig {
+  const settings = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+
+  const enabled = settings.get<boolean>('enabled', true);
