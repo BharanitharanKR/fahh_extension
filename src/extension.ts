@@ -187,3 +187,24 @@ async function playAudioFile(filePath: string): Promise<void> {
       `$p.Open('${escapedPath}');`,
       '$p.Play();',
       'Start-Sleep -Milliseconds 1800'
+    ].join(' ');
+
+    await runProcess('powershell', ['-NoProfile', '-NonInteractive', '-Command', command]);
+    return;
+  }
+
+  await runFirstAvailable([
+    { command: 'paplay', args: [filePath] },
+    { command: 'aplay', args: [filePath] },
+    { command: 'ffplay', args: ['-nodisp', '-autoexit', '-loglevel', 'quiet', filePath] },
+    { command: 'mpg123', args: [filePath] }
+  ]);
+}
+
+async function runFirstAvailable(commands: Array<{ command: string; args: string[] }>): Promise<void> {
+  const errors: string[] = [];
+
+  for (const item of commands) {
+    try {
+      await runProcess(item.command, item.args);
+      return;
