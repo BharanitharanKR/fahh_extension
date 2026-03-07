@@ -38,3 +38,23 @@ npm install
 ```
 
 2. Compile:
+
+```bash
+npm run compile
+```
+
+3. Run in Extension Development Host:
+
+- Open this folder in VS Code
+- Press `F5`
+
+## Add your own sounds
+
+Place your `.wav`/`.mp3` files in any location and set paths in VS Code settings.
+
+Example:
+
+```json
+{
+  "errorSonar.codeErrorSoundPath": "/absolute/path/to/fahh.mp3",
+  "errorSonar.terminalErrorSoundPath": "/absolute/path/to/fahh.mp3"
