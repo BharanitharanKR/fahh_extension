@@ -145,3 +145,24 @@ function resolveSoundPath(configuredPath: string, bundledFallbackPath: string): 
         candidates.push(path.join(folder.uri.fsPath, trimmedPath));
       }
       candidates.push(path.resolve(trimmedPath));
+    }
+  } else {
+    candidates.push(bundledFallbackPath);
+  }
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return undefined;
+}
+
+function getTotalDiagnosticsErrorCount(): number {
+  let total = 0;
+
+  for (const [, diagnostics] of vscode.languages.getDiagnostics()) {
+    for (const diagnostic of diagnostics) {
+      if (diagnostic.severity === vscode.DiagnosticSeverity.Error) {
+        total += 1;
