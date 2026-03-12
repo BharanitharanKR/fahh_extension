@@ -13,6 +13,7 @@ This project is implemented from scratch and is intended as your own publishable
 - Detects failed terminal command runs
 - Uses separate sound files for code errors and terminal errors
 - Includes a configurable cooldown to avoid noisy repeats
+- Can show a VS Code error notification with the latest diagnostics error
 - Supports Windows, macOS, and Linux audio playback commands
 
 ## Extension Settings
@@ -24,6 +25,7 @@ All settings live under `errorSonar`:
 - `errorSonar.codeErrorSoundPath`: sound file for editor errors
 - `errorSonar.terminalErrorSoundPath`: sound file for terminal failures
 - `errorSonar.notifyOnStart`: show startup status message
+- `errorSonar.showErrorMessages`: show a VS Code error notification for new diagnostics errors
 
 If no custom path is provided, the extension tries these bundled defaults:
 

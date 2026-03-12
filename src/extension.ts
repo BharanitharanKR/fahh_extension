@@ -9,8 +9,19 @@ interface LoadedConfig {
   enabled: boolean;
   cooldownMs: number;
   notifyOnStart: boolean;
+  showErrorMessages: boolean;
   codeErrorSoundPath?: string;
   terminalErrorSoundPath?: string;
+}
+
+interface ErrorSnapshot {
+  key: string;
+  message: string;
+  fileName: string;
+  line: number;
+  column: number;
+  source?: string;
+  code?: string;
 }
 
 class SoundGate {
@@ -48,22 +59,37 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(output);
 
   let config = loadConfig(context, output);
-  let previousErrorCount = getTotalDiagnosticsErrorCount();
+  const initialErrors = getErrorSnapshots();
+  let previousErrorCount = initialErrors.length;
+  let previousErrorKeys = new Set(initialErrors.map((item) => item.key));
   const soundGate = new SoundGate(output);
 
   const diagnosticsDisposable = vscode.languages.onDidChangeDiagnostics(() => {
-    const currentErrorCount = getTotalDiagnosticsErrorCount();
+    const currentErrors = getErrorSnapshots();
+    const currentErrorCount = currentErrors.length;
 
     if (!config.enabled) {
       previousErrorCount = currentErrorCount;
+      previousErrorKeys = new Set(currentErrors.map((item) => item.key));
       return;
     }
 
-    if (currentErrorCount > previousErrorCount && config.codeErrorSoundPath) {
-      void soundGate.play(config.codeErrorSoundPath, config.cooldownMs);
+    if (currentErrorCount > previousErrorCount) {
+      if (config.codeErrorSoundPath) {
+        void soundGate.play(config.codeErrorSoundPath, config.cooldownMs);
+      }
+
+      if (config.showErrorMessages) {
+        const newError =
+          currentErrors.find((item) => !previousErrorKeys.has(item.key)) ?? currentErrors[0];
+        if (newError) {
+          void vscode.window.showErrorMessage(formatErrorNotification(newError));
+        }
+      }
     }
 
     previousErrorCount = currentErrorCount;
+    previousErrorKeys = new Set(currentErrors.map((item) => item.key));
   });
 
   const terminalDisposable = vscode.window.onDidEndTerminalShellExecution((event) => {
@@ -110,6 +136,7 @@ function loadConfig(context: vscode.ExtensionContext, output: vscode.OutputChann
   const enabled = settings.get<boolean>('enabled', true);
   const rawCooldown = settings.get<number>('cooldownMs', 1200);
   const notifyOnStart = settings.get<boolean>('notifyOnStart', true);
+  const showErrorMessages = settings.get<boolean>('showErrorMessages', true);
 
   const codePathSetting = settings.get<string>('codeErrorSoundPath', '');
   const terminalPathSetting = settings.get<string>('terminalErrorSoundPath', '');
@@ -132,6 +159,7 @@ function loadConfig(context: vscode.ExtensionContext, output: vscode.OutputChann
     enabled,
     cooldownMs,
     notifyOnStart,
+    showErrorMessages,
     codeErrorSoundPath,
     terminalErrorSoundPath
   };
@@ -164,18 +192,39 @@ function resolveSoundPath(configuredPath: string, bundledFallbackPath: string): 
   return undefined;
 }
 
-function getTotalDiagnosticsErrorCount(): number {
-  let total = 0;
+function getErrorSnapshots(): ErrorSnapshot[] {
+  const errors: ErrorSnapshot[] = [];
 
-  for (const [, diagnostics] of vscode.languages.getDiagnostics()) {
+  for (const [uri, diagnostics] of vscode.languages.getDiagnostics()) {
     for (const diagnostic of diagnostics) {
-      if (diagnostic.severity === vscode.DiagnosticSeverity.Error) {
-        total += 1;
+      if (diagnostic.severity !== vscode.DiagnosticSeverity.Error) {
+        continue;
       }
+
+      const start = diagnostic.range.start;
+      const code = formatDiagnosticCode(diagnostic.code);
+      const key = [
+        uri.fsPath,
+        start.line,
+        start.character,
+        diagnostic.message,
+        diagnostic.source ?? '',
+        code ?? ''
+      ].join('|');
+
+      errors.push({
+        key,
+        message: diagnostic.message,
+        fileName: path.basename(uri.fsPath),
+        line: start.line + 1,
+        column: start.character + 1,
+        source: diagnostic.source,
+        code
+      });
     }
   }
 
-  return total;
+  return errors;
 }
 
 async function playAudioFile(filePath: string): Promise<void> {
@@ -251,4 +300,24 @@ function toErrorMessage(error: unknown): string {
   }
 
   return String(error);
+}
+
+function formatDiagnosticCode(code: vscode.Diagnostic['code']): string | undefined {
+  if (typeof code === 'string' || typeof code === 'number') {
+    return String(code);
+  }
+
+  if (code && typeof code === 'object' && 'value' in code) {
+    return String(code.value);
+  }
+
+  return undefined;
+}
+
+function formatErrorNotification(error: ErrorSnapshot): string {
+  const location = `${error.fileName}:${error.line}:${error.column}`;
+  const sourcePrefix = error.source ? `${error.source}: ` : '';
+  const codeSuffix = error.code ? ` [${error.code}]` : '';
+
+  return `Error Sonar: New code error detected. ${sourcePrefix}${error.message}${codeSuffix} (${location})`;
 }

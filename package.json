@@ -55,6 +55,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show a startup notification when the extension activates."
+        },
+        "errorSonar.showErrorMessages": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a VS Code error notification with the latest diagnostics error."
         }
       }
     }
