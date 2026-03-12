@@ -84,6 +84,11 @@ export function activate(context: vscode.ExtensionContext): void {
     config = loadConfig(context, output);
   });
 
+
+
+
+
+
   context.subscriptions.push(diagnosticsDisposable, terminalDisposable, configurationDisposable);
 
   if (config.notifyOnStart) {
@@ -236,6 +241,9 @@ function runProcess(command: string, args: string[]): Promise<void> {
     });
   });
 }
+
+
+
 
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
